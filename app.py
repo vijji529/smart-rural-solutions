@@ -9,14 +9,71 @@ st.set_page_config(
 
 st.title("🌍 Smart Rural Solutions Platform")
 st.subheader("Agriculture • Food Management • Healthcare")
+st.subheader("Equipment Details")
+
+for item in st.session_state.equipment:
+    with st.expander(item["Equipment"]):
+        st.write("Owner:", item["Owner"])
+        st.write("Contact:", item["Contact"])
+        st.write("Rent Per Day: ₹", item["Rent"])
 
 # Session States
 
 if "equipment" not in st.session_state:
-    st.session_state.equipment = []
+    st.session_state.equipment = [
+        {
+            "Equipment": "Tractor",
+            "Owner": "Ramesh",
+            "Contact": "9876543210",
+            "Rent": 1500
+        },
+        {
+            "Equipment": "Rotavator",
+            "Owner": "Suresh",
+            "Contact": "9123456780",
+            "Rent": 1000
+        },
+        {
+            "Equipment": "Seed Drill",
+            "Owner": "Mahesh",
+            "Contact": "9988776655",
+            "Rent": 800
+        },
+        {
+            "Equipment": "Cultivators",
+            "Owner": "Ravindra",
+            "Contact": "9234567890",
+            "Rent": 2000
+        }
+    ]
 
 if "food" not in st.session_state:
-    st.session_state.food = []
+    st.session_state.food = [
+        {
+            "Donor": "ABC Function Hall",
+            "Food": "Veg Biryani",
+            "Quantity": 150,
+            "Location": "Guntur"
+        },
+        {
+            "Donor": "Sai Hotel",
+            "Food": "Meals",
+            "Quantity": 80,
+            "Location": "Vijayawada"
+        },
+        {
+            "Donor": "Mythri Hotel",
+            "Food": "Fried Rice",
+            "Quantity": "50",
+            "Locality": "Rajamahendravaram"
+        },
+        {
+            "Donor": "Orion Restaurant",
+            "Food": "Non-Veg Briyani",
+            "Quantity": "Pulav",
+            "Locality": "Bapatla"
+        }
+    ]
 
 
 # Sidebar
@@ -80,6 +137,22 @@ if module == "🏠 Home":
 
     ✅ Healthcare Awareness
     """)
+    st.markdown("---")
+
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    st.metric("Registered Equipment", len(st.session_state.equipment))
+
+with col2:
+    total_food = sum(
+        item["Quantity"]
+        for item in st.session_state.food
+    )
+    st.metric("Food Portions Available", total_food)
+
+with col3:
+    st.metric("Medicines Supported", len(database) if 'database' in locals() else 6)
 
 # AGRIRENT
 
@@ -212,6 +285,16 @@ elif module == "🍛 Food Rescue":
             st.warning(
                 "No food donations available."
             )
+            st.subheader("Impact Dashboard")
+
+total_quantity = sum(
+    food["Quantity"]
+    for food in st.session_state.food
+)
+
+st.success(
+    f"Potential Meals Saved: {total_quantity}"
+)
 
 # MEDITRANSLATE
 
@@ -235,6 +318,9 @@ elif module == "💊 MediTranslate":
 
         "Ibuprofen":
         "Used for pain and inflammation."
+
+        "Azithromycin":
+        "Used to treat respiratory infections."
     }
 
     medicine = st.text_input(
@@ -252,6 +338,18 @@ elif module == "💊 MediTranslate":
         else:
             st.warning(
                 "Medicine not found."
+            )
+
+    st.markdown("---")
+
+    st.subheader("Medicine Database")
+
+    for med, desc in database.items():
+        st.write(f"✅ {med} - {desc}")
+
+        st.info(
+"Note: Information is for educational purposes only."
+)
             )
 
     st.markdown("---")

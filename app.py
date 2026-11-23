@@ -7,18 +7,7 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("🌍 Smart Rural Solutions Platform")
-st.subheader("Agriculture • Food Management • Healthcare")
-st.subheader("Equipment Details")
-
-for item in st.session_state.equipment:
-    with st.expander(item["Equipment"]):
-        st.write("Owner:", item["Owner"])
-        st.write("Contact:", item["Contact"])
-        st.write("Rent Per Day: ₹", item["Rent"])
-
-# Session States
-
+# Sample Data
 if "equipment" not in st.session_state:
     st.session_state.equipment = [
         {
@@ -38,12 +27,6 @@ if "equipment" not in st.session_state:
             "Owner": "Mahesh",
             "Contact": "9988776655",
             "Rent": 800
-        },
-        {
-            "Equipment": "Cultivators",
-            "Owner": "Ravindra",
-            "Contact": "9234567890",
-            "Rent": 2000
         }
     ]
 
@@ -60,23 +43,20 @@ if "food" not in st.session_state:
             "Food": "Meals",
             "Quantity": 80,
             "Location": "Vijayawada"
-        },
-        {
-            "Donor": "Mythri Hotel",
-            "Food": "Fried Rice",
-            "Quantity": "50",
-            "Locality": "Rajamahendravaram"
-        },
-        {
-            "Donor": "Orion Restaurant",
-            "Food": "Non-Veg Briyani",
-            "Quantity": "Pulav",
-            "Locality": "Bapatla"
         }
     ]
 
+database = {
+    "Paracetamol": "Used for fever and pain relief.",
+    "Amoxicillin": "Antibiotic used for bacterial infections.",
+    "Cetirizine": "Used to treat allergies.",
+    "Pantoprazole": "Used for acidity and gastric issues.",
+    "Ibuprofen": "Used for pain and inflammation.",
+    "Azithromycin": "Used to treat respiratory infections."
+}
 
-# Sidebar
+st.title("🌍 Smart Rural Solutions Platform")
+st.subheader("Agriculture • Food Management • Healthcare")
 
 module = st.sidebar.selectbox(
     "Select Module",
@@ -89,7 +69,6 @@ module = st.sidebar.selectbox(
 )
 
 # HOME
-
 if module == "🏠 Home":
 
     st.header("Welcome")
@@ -97,65 +76,32 @@ if module == "🏠 Home":
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.info(
-            """
-            🚜 AgriRent
-
-            Farmers can share and rent
-            agricultural equipment.
-            """
-        )
+        st.info("🚜 AgriRent\n\nEquipment Sharing Platform")
 
     with col2:
-        st.success(
-            """
-            🍛 Food Rescue
-
-            Connect food donors
-            with NGOs.
-            """
-        )
+        st.success("🍛 Food Rescue\n\nFood Donation Platform")
 
     with col3:
-        st.warning(
-            """
-            💊 MediTranslate
+        st.warning("💊 MediTranslate\n\nMedicine Information Assistant")
 
-            Understand medicine
-            information easily.
-            """
+    st.markdown("---")
+
+    c1, c2, c3 = st.columns(3)
+
+    with c1:
+        st.metric("Registered Equipment", len(st.session_state.equipment))
+
+    with c2:
+        total_food = sum(
+            item["Quantity"]
+            for item in st.session_state.food
         )
+        st.metric("Food Portions Available", total_food)
 
-    st.markdown("---")
-
-    st.write("""
-    This platform addresses three major real-world problems:
-
-    ✅ Agricultural Equipment Accessibility
-
-    ✅ Food Waste Reduction
-
-    ✅ Healthcare Awareness
-    """)
-    st.markdown("---")
-
-col1, col2, col3 = st.columns(3)
-
-with col1:
-    st.metric("Registered Equipment", len(st.session_state.equipment))
-
-with col2:
-    total_food = sum(
-        item["Quantity"]
-        for item in st.session_state.food
-    )
-    st.metric("Food Portions Available", total_food)
-
-with col3:
-    st.metric("Medicines Supported", len(database) if 'database' in locals() else 6)
+    with c3:
+        st.metric("Medicines Supported", len(database))
 
 # AGRIRENT
-
 elif module == "🚜 AgriRent":
 
     st.header("🚜 AgriRent")
@@ -167,18 +113,9 @@ elif module == "🚜 AgriRent":
 
     if option == "Add Equipment":
 
-        equipment_name = st.text_input(
-            "Equipment Name"
-        )
-
-        owner_name = st.text_input(
-            "Owner Name"
-        )
-
-        contact = st.text_input(
-            "Contact Number"
-        )
-
+        equipment_name = st.text_input("Equipment Name")
+        owner_name = st.text_input("Owner Name")
+        contact = st.text_input("Contact Number")
         rent = st.number_input(
             "Rent Per Day",
             min_value=0
@@ -186,40 +123,34 @@ elif module == "🚜 AgriRent":
 
         if st.button("Add Equipment"):
 
-            st.session_state.equipment.append({
-                "Equipment": equipment_name,
-                "Owner": owner_name,
-                "Contact": contact,
-                "Rent": rent
-            })
+            st.session_state.equipment.append(
+                {
+                    "Equipment": equipment_name,
+                    "Owner": owner_name,
+                    "Contact": contact,
+                    "Rent": rent
+                }
+            )
 
             st.success("Equipment Added Successfully")
 
     else:
 
-        if len(st.session_state.equipment) > 0:
+        df = pd.DataFrame(
+            st.session_state.equipment
+        )
 
-            df = pd.DataFrame(
-                st.session_state.equipment
-            )
+        st.dataframe(df)
 
-            st.dataframe(df)
+        st.subheader("Equipment Details")
 
-            selected = st.selectbox(
-                "Select Equipment",
-                df["Equipment"]
-            )
-
-            if st.button("Request Rent"):
-                st.success(
-                    f"Rental request submitted for {selected}"
-                )
-
-        else:
-            st.warning("No equipment available.")
+        for item in st.session_state.equipment:
+            with st.expander(item["Equipment"]):
+                st.write("Owner:", item["Owner"])
+                st.write("Contact:", item["Contact"])
+                st.write("Rent Per Day: ₹", item["Rent"])
 
 # FOOD RESCUE
-
 elif module == "🍛 Food Rescue":
 
     st.header("🍛 Food Rescue")
@@ -240,7 +171,7 @@ elif module == "🍛 Food Rescue":
         )
 
         quantity = st.number_input(
-            "Quantity (People)",
+            "Quantity",
             min_value=1
         )
 
@@ -250,78 +181,38 @@ elif module == "🍛 Food Rescue":
 
         if st.button("Donate Food"):
 
-            st.session_state.food.append({
-                "Donor": donor,
-                "Food": food_item,
-                "Quantity": quantity,
-                "Location": location
-            })
+            st.session_state.food.append(
+                {
+                    "Donor": donor,
+                    "Food": food_item,
+                    "Quantity": quantity,
+                    "Location": location
+                }
+            )
 
-            st.success("Donation Added")
+            st.success("Donation Added Successfully")
 
     else:
 
-        if len(st.session_state.food) > 0:
+        df = pd.DataFrame(
+            st.session_state.food
+        )
 
-            df = pd.DataFrame(
-                st.session_state.food
-            )
+        st.dataframe(df)
 
-            st.dataframe(df)
+        total = sum(
+            item["Quantity"]
+            for item in st.session_state.food
+        )
 
-            selected = st.selectbox(
-                "Select Food Item",
-                df["Food"]
-            )
-
-            if st.button(
-                "Request Pickup"
-            ):
-                st.success(
-                    f"Pickup request sent for {selected}"
-                )
-
-        else:
-            st.warning(
-                "No food donations available."
-            )
-            st.subheader("Impact Dashboard")
-
-total_quantity = sum(
-    food["Quantity"]
-    for food in st.session_state.food
-)
-
-st.success(
-    f"Potential Meals Saved: {total_quantity}"
-)
+        st.success(
+            f"Potential Meals Saved: {total}"
+        )
 
 # MEDITRANSLATE
-
 elif module == "💊 MediTranslate":
 
     st.header("💊 MediTranslate")
-
-    database = {
-
-        "Paracetamol":
-        "Used for fever and pain relief.",
-
-        "Amoxicillin":
-        "Antibiotic used to treat infections.",
-
-        "Cetirizine":
-        "Used for allergy treatment.",
-
-        "Pantoprazole":
-        "Used for acidity and stomach issues.",
-
-        "Ibuprofen":
-        "Used for pain and inflammation."
-
-        "Azithromycin":
-        "Used to treat respiratory infections."
-    }
 
     medicine = st.text_input(
         "Enter Medicine Name"
@@ -336,25 +227,22 @@ elif module == "💊 MediTranslate":
             )
 
         else:
+
             st.warning(
                 "Medicine not found."
             )
 
     st.markdown("---")
 
-    st.subheader("Medicine Database")
+    st.subheader(
+        "Medicine Database"
+    )
 
     for med, desc in database.items():
-        st.write(f"✅ {med} - {desc}")
+        st.write(
+            f"✅ {med} - {desc}"
+        )
 
-        st.info(
-"Note: Information is for educational purposes only."
-)
-            )
-
-    st.markdown("---")
-
-    st.subheader("Medicine Database")
-
-    for med, desc in database.items():
-        st.write(f"✅ {med} - {desc}")
+    st.info(
+        "For educational purposes only."
+    ) 
